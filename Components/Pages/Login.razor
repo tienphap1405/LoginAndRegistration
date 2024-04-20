@@ -1,0 +1,49 @@
+﻿@page "/"
+@using LoginAndRegistration.Models
+@using LoginAndRegistration.Database
+@inject NavigationManager Navigation
+<h3>Login</h3>
+
+<EditForm Model = "@loginModel" OnValidSubmit="Submit">
+	<DataAnnotationsValidator />
+	<div class="mt-2 form-group">
+		<label>Email</label>
+		<input type="email" @bind-value = "loginModel.UserEmail" class="form-control" placeholder="Enter Email">
+		<ValidationMessage For="@(() => loginModel.UserEmail)" />
+	</div>
+	<div class="mt-2 form-group">
+		<label>Password</label>
+		<input type="password" @bind-value="loginModel.Password" class="form-control" placeholder="Password">
+		<ValidationMessage For="@(() => loginModel.Password)" />
+	</div>
+
+	<div class="mt-2 text-end">
+		<NavLink class="nav-link" href="registration">
+			<span>Click here to create new account?</span>
+		</NavLink>
+	</div>
+
+	<div class="text-center mt-2 d-grid gap-2 col-6 mx-auto">
+		<button type="submit" class="btn btn-outline-dark">Sign In</button>
+	</div>
+</EditForm>
+@code {
+	LoginModel loginModel = new LoginModel();
+	UsersDatabase usersDatabase = new UsersDatabase();
+	private async Task Submit()
+	{
+		bool isAuthenticated = await usersDatabase.AuthenticateUsers(loginModel.UserEmail, loginModel.Password);
+
+		if (isAuthenticated)
+		{
+			await App.Current.MainPage.DisplayAlert("Success", "User has successfully login.", "Close");
+			Navigation.NavigateTo("/Main");
+		}
+		else
+		{
+			await App.Current.MainPage.DisplayAlert("Invalid", "Invalid users email or password. Please try again", "Close");
+
+		}
+	}
+}
+
